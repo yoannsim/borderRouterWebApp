@@ -2,9 +2,9 @@
 
 Simple mqtt client <=> html page for display data from border router 
 
-  mqttbroker  :'broker.emqx.io' 
+  `mqttbroker  :'broker.emqx.io' 
   topic : /heig/cse/borderRouter
-  port: 8084 (SSL)
+  port: 8084 (SSL)`
 
 webApp : ??
 
