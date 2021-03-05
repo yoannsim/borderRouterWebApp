@@ -84,7 +84,7 @@ function connectMQ(host,port,username,password){
           // Once a connection has been made, make a subscription and send a message.
           console.log("onConnect");
           connected = true;
-          client.subscribe("/ic/ha/from/test/");
+          client.subscribe("/heig/cse/from/borderRouter");
           //updateUI();
         }
         function onConnectionLost(responseObject) {
@@ -101,7 +101,7 @@ function connectMQ(host,port,username,password){
         
 	    function sendUpdate(data){
             let message = new Paho.MQTT.Message(JSON.stringify(data));
-            message.destinationName = "/ic/ha/to/test/";
+            message.destinationName = "/heig/cse/to/borderRouter";
             client.send(message);
         }
         function onMessageArrived(message) {
