@@ -7,6 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('borderrouterwebapp:server');
 var http = require('http');
+var io = require('socket.io')();
+
 
 /**
  * Get port from environment and store in Express.
@@ -21,6 +23,20 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+/**
+ * Create wss server.
+ */
+var io = require('socket.io')(server);
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('chat message', (msg) => {
+    console.log('message: ' + msg);
+  });
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
 /**
  * Listen on provided port, on all network interfaces.
  */

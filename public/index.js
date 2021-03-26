@@ -1,69 +1,6 @@
 let mqqtHost = 'broker.emqx.io'
 let mqqtPort = 8084
-
-// Load the Visualization API and the corechart package.
- google.charts.load('current', {'packages':['corechart']});
- // Set a callback to run when the Google Visualization API is loaded.
- google.charts.setOnLoadCallback(chartsReady);
- let temperatureChartData ;
- let temperatureChartDataGarage ;
- function chartsReady(){
-    temperatureChartData = google.visualization.arrayToDataTable([
-        ['timeString', 'Temperature salon'],
-        ['10:23:11',25],
-		['10:28:11',20]
-      ]);
-     temperatureChartDataGarage = google.visualization.arrayToDataTable([
-         ['timeString', 'Temperature garage'],
-         ['10:23:11',10],
-         ['10:28:11',15]
-     ]);
-
-    drawChart(temperatureChartData);
-
-     drawChart(temperatureChartDataGarage);
-	 $("#temperature_holder").text(25)
-    connectMQ(mqqtHost,mqqtPort,"","")
- }
- 
-function updateCharts(boardStatus){
-    let temperature = Math.round(((4096/3300)*boardStatus.tSensor)/10 * 100) / 100
-    let date = new Date()
-    let timeString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
-    console.log(timeString);
-    temperatureChartData.addRow([timeString,temperature])
-    if(temperatureChartData.getNumberOfRows() > 20){
-        temperatureChartData.removeRow(0)
-    }
-
-    drawChart(temperatureChartData)
-    $("#temperature_holder").text(temperature)
-} 
-function drawChart(data,realyData) {
-      var temperatureChatOptions = {
-        title: 'Temperature',
-        curveType: 'function',
-        legend: { position: 'bottom' },
-        animation:{
-            duration: 500,
-            easing: 'out',
-          },
-        hAxis:{
-          showTextEvery:5,
-        },
-        vAxis:{
-            minValue:15, 
-            maxValue:35
-        },
-      };
-
-      let temperatureChart = new google.visualization.LineChart(document.getElementById('temperature_chart_div'));
-      temperatureChart.draw(data, temperatureChatOptions);
-
-    let temperatureChartGarage = new google.visualization.LineChart(document.getElementById('temperature_chart_divGarage'));
-    temperatureChartGarage.draw(data, temperatureChatOptions);
-
-}
+var socket = io();
 
 function connectMQ(host,port,username,password){
     var clientId = "ws" + Math.random();
@@ -104,11 +41,24 @@ function connectMQ(host,port,username,password){
             message.destinationName = "/heig/cse/to/borderRouter";
             client.send(message);
         }
+
         function onMessageArrived(message) {
           let msg=message.payloadString;
-          console.log(msg);
           let boardStatus  = JSON.parse(msg)
-          updateCharts(boardStatus )
+            boardStatus.forEach(element => {
+                console.log(element);
+                 // crée un nouvel élément div
+                var newDiv = document.createElement("div");
+                // et lui donne un peu de contenu
+                var newContent = document.createTextNode(JSON.stringify(element));
+                // ajoute le nœud texte au nouveau div créé
+                newDiv.appendChild(newContent);
+
+                // ajoute le nouvel élément créé et son contenu dans le DOM
+                var currentDiv = document.getElementById('data');
+                document.body.appendChild(newDiv);
+
+            });
         }
 
         
@@ -117,3 +67,5 @@ function connectMQ(host,port,username,password){
             sendUpdate({"test":"getTemp"})
         })
 }
+
+connectMQ(mqqtHost,mqqtPort,"","")
