@@ -1,7 +1,6 @@
 let mqqtHost = 'broker.emqx.io'
 let mqqtPort = 8084
 
-
 function afficheDataBrute(message){
 
     let msg=message.payloadString;
@@ -13,7 +12,6 @@ function afficheDataBrute(message){
 
 
     boardStatus.forEach(element => {
-        console.log(element);
 
         //retirer les doublons
         var elem = document.getElementById(element.id);
@@ -21,17 +19,43 @@ function afficheDataBrute(message){
             elem.remove();
         }
 
-        var newDiv = document.createElement("div");
-        newDiv.id = element.id;
-        newDiv.className = "themed-container"
 
-        // et lui donne un peu de contenu
-        var newContent = document.createTextNode(element.name + ": "+ element.val +" "+element.unit+ "\n");
-        newDiv.appendChild(newContent);
-        document.body.insertBefore(newDiv,currentDiv);
+
+        if( element.role == "out"){
+
+            var elem = document.getElementById("but");
+            if(elem){
+                elem.remove();
+            }
+            var btn;
+            btn = document.createElement("BUTTON");
+            btn.id = "but";
+            btn.innerHTML = element.name;
+            btn.className = "btn btn-primary btn-lg"
+            btn.onclick = function(event) {
+
+                var message = {id: element.id,state : "on"}
+                simpleMQTTSend(mqqtHost,mqqtPort,"","","/heig/cse/to/borderRouter",message);
+            }
+
+                document.body.insertBefore(btn,currentDiv);
+        }else{
+
+            var newDiv = document.createElement("div");
+            newDiv.id = element.id;
+            newDiv.className = "themed-container"
+
+            var newContent = document.createTextNode(element.name + ": "+ element.val +" "+element.unit+ "\n");
+
+            newDiv.appendChild(newContent);
+            document.body.insertBefore(newDiv,currentDiv);
+        }
+
+
+
     });
 
 }
 
 
-connectMQ(mqqtHost,mqqtPort,"","",afficheDataBrute,"")
+connectMQ(mqqtHost,mqqtPort,"","",afficheDataBrute,"/heig/cse/to/borderRouter")

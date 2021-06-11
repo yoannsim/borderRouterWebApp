@@ -1,3 +1,27 @@
+function simpleMQTTSend(host,port,username,password,sendTopic,data){
+
+    var clientId = "ws" + Math.random();
+    var client = new Paho.MQTT.Client(host, parseInt(port), clientId);
+
+    client.connect({
+        useSSL: true,
+        userName: username,
+        password: password,
+        onSuccess: onConnect
+    });
+
+    function onConnect() {
+        // Once a connection has been made, make a subscription and send a message.
+        console.log("server ok");
+        let message = new Paho.MQTT.Message(JSON.stringify(data));
+        message.destinationName = sendTopic;
+        client.send(message);
+
+    }
+
+}
+
+
 
 function connectMQ(host,port,username,password,funcOnmessage,sendTopic){
     var clientId = "ws" + Math.random();
@@ -30,10 +54,9 @@ function connectMQ(host,port,username,password,funcOnmessage,sendTopic){
         connected=false
         var errDiv = document.getElementById("error");
         console.log( "Could not connect to WebSocket server, most likely you're behind a firewall that doesn't allow outgoing connections");
-        //updateUI();
     }
 
-    function sendUpdate(data){
+   function sendUpdate(data){
         let message = new Paho.MQTT.Message(JSON.stringify(data));
         message.destinationName = sendTopic;
         client.send(message);
@@ -44,10 +67,12 @@ function connectMQ(host,port,username,password,funcOnmessage,sendTopic){
         funcOnmessage(message);
     }
 
+
     $("#getTem").on('click',()=>{
         console.log('tryConnect')
         sendUpdate({connectStatus:"try"})
     })
 
-
 }
+
+
